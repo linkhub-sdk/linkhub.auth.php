@@ -27,7 +27,7 @@ class Linkhub
 	private $__SecretKey;
 	
 	private static $singleton = null;
-	public static function newInstance($PartnerID,$secretKey)
+	public static function getInstance($PartnerID,$secretKey)
 	{
 		if(is_null(Linkhub::$singleton)) {
 			Linkhub::$singleton = new Linkhub();

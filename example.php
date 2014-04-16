@@ -10,7 +10,7 @@ $PartnerID = 'TESTER';
 $SecretKey = 'okH3G1/WZ3w1PMjHDLaWdcWIa/dbTX3eGuqMZ5AvnDE=';
 
 $AccessID = '1231212312';
-$Linkhub = Linkhub::newInstance($PartnerID,$SecretKey);
+$Linkhub = Linkhub::getInstance($PartnerID,$SecretKey);
 
 try
 {
