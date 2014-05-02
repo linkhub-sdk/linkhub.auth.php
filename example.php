@@ -1,9 +1,6 @@
 <?php
 
 require_once 'linkhub.auth.php';
-use Linkhub\Linkhub;
-use Linkhub\Token;
-use Linkhub\LinkhubException;
 
 $ServiceID = 'POPBILL_TEST';
 $PartnerID = 'TESTER';

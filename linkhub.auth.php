@@ -17,7 +17,6 @@
 * ======================================================================================
 */
 
-namespace Linkhub;
 
 class Linkhub 
 {
@@ -131,15 +130,15 @@ class TokenRequest
 	public $scope;
 }
 
-class LinkhubException extends \Exception
+class LinkhubException extends Exception
 {
 	public function __construct($response, Exception $previous = null) {
        $Err = json_decode($response);
        if(is_null($Err)) {
-       		parent::__construct($response, -99999999, $previous);
+       		parent::__construct($response, -99999999);
        }
        else {
-       		parent::__construct($Err->message, $Err->code, $previous);
+       		parent::__construct($Err->message, $Err->code);
        }
     }
 
