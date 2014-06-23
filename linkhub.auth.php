@@ -22,16 +22,16 @@ class Linkhub
 {
 	const VERSION = '1.0';
 	const ServiceURL = 'https://auth.linkhub.co.kr';
-	private $__PartnerID;
+	private $__LinkID;
 	private $__SecretKey;
 	
 	private static $singleton = null;
-	public static function getInstance($PartnerID,$secretKey)
+	public static function getInstance($LinkID,$secretKey)
 	{
 		if(is_null(Linkhub::$singleton)) {
 			Linkhub::$singleton = new Linkhub();
 		}
-		Linkhub::$singleton->__PartnerID = $PartnerID;
+		Linkhub::$singleton->__LinkID = $LinkID;
 		Linkhub::$singleton->__SecretKey = $secretKey;
 		
 		return Linkhub::$singleton;
@@ -91,7 +91,7 @@ class Linkhub
 			$header[] = 'x-lh-forwarded: '.$forwardIP;
 		}
 		
-		$header[] = 'Authorization: LINKHUB '.$this->__PartnerID.' '.$digest;
+		$header[] = 'Authorization: LINKHUB '.$this->__LinkID.' '.$digest;
 		$header[] = 'Content-Type: Application/json';
 		
 		return $this->executeCURL(Linkhub::ServiceURL.$uri , $header,true,$postdata);

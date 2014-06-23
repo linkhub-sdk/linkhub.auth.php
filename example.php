@@ -3,11 +3,11 @@
 require_once 'linkhub.auth.php';
 
 $ServiceID = 'POPBILL_TEST';
-$PartnerID = 'TESTER';
+$LinkID = 'TESTER';
 $SecretKey = 'okH3G1/WZ3w1PMjHDLaWdcWIa/dbTX3eGuqMZ5AvnDE=';
 
 $AccessID = '1231212312';
-$Linkhub = Linkhub::getInstance($PartnerID,$SecretKey);
+$Linkhub = Linkhub::getInstance($LinkID,$SecretKey);
 
 try
 {
