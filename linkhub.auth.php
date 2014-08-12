@@ -62,9 +62,11 @@ class Linkhub
 	
 	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null)
 	{
+		$timezone = @date_default_timezone_get();
 		date_default_timezone_set("UTC");
 		$xDate = date("Y-m-d\TH:i:s\Z", time()); 
-		
+		date_default_timezone_set($timezone);
+
 		$uri = '/' . $ServiceID . '/Token';
 		$header = array();
 		
