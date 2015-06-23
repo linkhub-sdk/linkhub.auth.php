@@ -16,14 +16,13 @@
 * We welcome any suggestions, feedbacks, blames or anythings.
 * ======================================================================================
 */
-
-
 class Linkhub 
 {
 	const VERSION = '1.0';
 	const ServiceURL = 'https://auth.linkhub.co.kr';
 	private $__LinkID;
 	private $__SecretKey;
+	private $__requestMode = LINKHUB_COMM_MODE;
 	
 	private static $singleton = null;
 	public static function getInstance($LinkID,$secretKey)
@@ -38,26 +37,59 @@ class Linkhub
 	}
 	
 	private function executeCURL($url,$header = array(),$isPost = false, $postdata = null) {
-		$http = curl_init($url);
 		
-		if($isPost) {
-			curl_setopt($http, CURLOPT_POST,1);
-			curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);   
-		}
-		curl_setopt($http, CURLOPT_HTTPHEADER,$header);
-		curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
+		if($this->__requestMode != "STREAM") {
+			$http = curl_init($url);
 		
-		$responseJson = curl_exec($http);
+			if($isPost) {
+				curl_setopt($http, CURLOPT_POST,1);
+				curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);   
+			}
+			curl_setopt($http, CURLOPT_HTTPHEADER,$header);
+			curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
 		
-		$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
+			$responseJson = curl_exec($http);
 		
-		curl_close($http);
+			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
+		
+			curl_close($http);
 			
-		if($http_status != 200) {
-			throw new LinkhubException($responseJson);
-		}
+			if($http_status != 200) {
+				throw new LinkhubException($responseJson);
+			}
 		
-		return json_decode($responseJson);
+			return json_decode($responseJson);
+		
+		}
+		else { 
+			if($isPost) {
+				$params = array('http' => array(
+					 'ignore_errors' => TRUE,
+   	          	 'method' => 'POST',
+    	         	 'content' => $postdata
+        		    ));
+	        } else {
+	        	$params = array('http' => array(
+ 	  	     		 'ignore_errors' => TRUE,
+    	         	 'method' => 'GET'
+        		    ));
+	        }
+  			if ($header !== null) {
+		  		$head = "";
+		  		foreach($header as $h) {
+	  				$head = $head . $h . "\r\n";
+	    		}
+	    		$params['http']['header'] = substr($head,0,-2);
+	  		}
+	  		$ctx = stream_context_create($params);
+	  		$response = file_get_contents($url, false, $ctx);
+  		
+	  		if ($http_response_header[0] != "HTTP/1.1 200 OK") {
+	    		throw new LinkhubException($responseJson);
+	  		}
+  		
+			return json_decode($response);
+		}
 	}
 	
 	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null)
