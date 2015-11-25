@@ -70,14 +70,14 @@ class Linkhub
 				$params = array('http' => array(
 					 'ignore_errors' => TRUE,
 	   	          	 'method' => 'POST',
-					 'protocol_version' => '1.1',
+					 'protocol_version' => '1.0',
     	         	 'content' => $postdata
         		    ));
 	        } else {
 	        	$params = array('http' => array(
  	  	     		 'ignore_errors' => TRUE,
     	         	 'method' => 'GET',
-					 'protocol_version' => '1.1',
+					 'protocol_version' => '1.0',
         		    ));
 	        }
   			if ($header !== null) {
@@ -128,7 +128,7 @@ class Linkhub
 			$header[] = 'Connection: close';
 			$params = array('http' => array(
 				 'ignore_errors' => TRUE,
-				'protocol_version' => '1.1',
+				'protocol_version' => '1.0',
 				 'method' => 'GET'
    		    ));
 			if ($header !== null) {
