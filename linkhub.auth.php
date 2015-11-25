@@ -97,7 +97,7 @@ class Linkhub
 			}
 
 	  		if ($http_response_header[0] != "HTTP/1.1 200 OK") {
-	    		throw new LinkhubException($responseJson);
+	    		throw new LinkhubException($response);
 	  		}
   		
 			return json_decode($response);
