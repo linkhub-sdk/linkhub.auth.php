@@ -153,7 +153,7 @@ class Linkhub
 	
 	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null)
 	{
-		$xDate = gmdate("Y-m-d\TH:i:s\Z", time()); 
+		$xDate = $this->getTime(); 
 		
 		$uri = '/' . $ServiceID . '/Token';
 		$header = array();
