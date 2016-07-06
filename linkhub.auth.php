@@ -16,14 +16,14 @@
 * We welcome any suggestions, feedbacks, blames or anythings.
 * ======================================================================================
 */
-class Linkhub 
+class Linkhub
 {
 	const VERSION = '1.0';
 	const ServiceURL = 'https://auth.linkhub.co.kr';
 	private $__LinkID;
 	private $__SecretKey;
 	private $__requestMode = LINKHUB_COMM_MODE;
-	
+
 	private static $singleton = null;
 	public static function getInstance($LinkID,$secretKey)
 	{
@@ -32,40 +32,40 @@ class Linkhub
 		}
 		Linkhub::$singleton->__LinkID = $LinkID;
 		Linkhub::$singleton->__SecretKey = $secretKey;
-		
+
 		return Linkhub::$singleton;
 	}
 	public function gzdecode($data){
 	    return gzinflate(substr($data, 10, -8));
 	}
-	
+
 	private function executeCURL($url,$header = array(),$isPost = false, $postdata = null) {
-		
+
 		if($this->__requestMode != "STREAM") {
 			$http = curl_init($url);
-		
+
 			if($isPost) {
 				curl_setopt($http, CURLOPT_POST,1);
-				curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);   
+				curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);
 			}
 			curl_setopt($http, CURLOPT_HTTPHEADER,$header);
 			curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
 			curl_setopt($http, CURLOPT_ENCODING, 'gzip,deflate');
 
 			$responseJson = curl_exec($http);
-		
+
 			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
-		
+
 			curl_close($http);
-			
+
 			if($http_status != 200) {
 				throw new LinkhubException($responseJson);
 			}
-		
+
 			return json_decode($responseJson);
-		
+
 		}
-		else { 
+		else {
 			if($isPost) {
 				$params = array('http' => array(
 					 'ignore_errors' => TRUE,
@@ -89,17 +89,17 @@ class Linkhub
 	  		}
 	  		$ctx = stream_context_create($params);
 	  		$response = file_get_contents($url, false, $ctx);
-  			
+
 			$is_gzip = 0 === mb_strpos($response , "\x1f" . "\x8b" . "\x08");
 
 			if($is_gzip){
-				$response = $this->gzdecode($response);		
+				$response = $this->gzdecode($response);
 			}
 
 	  		if ($http_response_header[0] != "HTTP/1.1 200 OK") {
 	    		throw new LinkhubException($response);
 	  		}
-  		
+
 			return json_decode($response);
 		}
 	}
@@ -108,22 +108,22 @@ class Linkhub
 	{
 		if($this->__requestMode != "STREAM") {
 			$http = curl_init(Linkhub::ServiceURL.'/Time');
-		
+
 			curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
-	
+
 			$response = curl_exec($http);
-		
+
 			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
 			curl_close($http);
-			
-			
+
+
 			if($http_status != 200) {
 				throw new LinkhubException($response);
 			}
 			return $response;
-		
-		} else { 
+
+		} else {
 			$header = array();
 			$header[] = 'Connection: close';
 			$params = array('http' => array(
@@ -138,8 +138,8 @@ class Linkhub
 	    		}
 	    		$params['http']['header'] = substr($head,0,-2);
 	  		}
-			
-			
+
+
 	  		$ctx = stream_context_create($params);
 
 	  		$response = (file_get_contents(LInkhub::ServiceURL.'/Time', false, $ctx));
@@ -150,20 +150,20 @@ class Linkhub
 			return $response;
 		}
 	}
-	
+
 	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null)
 	{
-		$xDate = $this->getTime(); 
-		
+		$xDate = $this->getTime();
+
 		$uri = '/' . $ServiceID . '/Token';
 		$header = array();
-		
+
 		$TokenRequest = new TokenRequest();
 		$TokenRequest->access_id = $access_id;
 		$TokenRequest->scope = $scope;
-		
+
 		$postdata = json_encode($TokenRequest);
-		
+
 		$digestTarget = 'POST'.chr(10);
 		$digestTarget = $digestTarget.base64_encode(md5($postdata,true)).chr(10);
 		$digestTarget = $digestTarget.$xDate.chr(10);
@@ -172,25 +172,25 @@ class Linkhub
 		}
 		$digestTarget = $digestTarget.Linkhub::VERSION.chr(10);
 		$digestTarget = $digestTarget.$uri;
-		
+
 		$digest = base64_encode(hash_hmac('sha1',$digestTarget,base64_decode(strtr($this->__SecretKey, '-_', '+/')),true));
-		
+
 		$header[] = 'x-lh-date: '.$xDate;
 		$header[] = 'x-lh-version: '.Linkhub::VERSION;
 		if(!(is_null($forwardIP) || $forwardIP == '')) {
 			$header[] = 'x-lh-forwarded: '.$forwardIP;
 		}
-		
+
 		$header[] = 'Authorization: LINKHUB '.$this->__LinkID.' '.$digest;
 		$header[] = 'Accept-Encoding: gzip,deflate';
 		$header[] = 'Content-Type: Application/json';
 		$header[] = 'Connection: close';
-				
+
 		return $this->executeCURL(Linkhub::ServiceURL.$uri , $header,true,$postdata);
-		
+
 	}
-	
-	
+
+
 	public function getBalance($bearerToken, $ServiceID)
 	{
 		$header = array();
@@ -199,12 +199,12 @@ class Linkhub
 		$header[] = 'Connection: close';
 
 		$uri = '/'.$ServiceID.'/Point';
-		
+
 		$response = $this->executeCURL(Linkhub::ServiceURL . $uri,$header);
 		return $response->remainPoint;
-		
+
 	}
-	
+
 	public function getPartnerBalance($bearerToken, $ServiceID)
 	{
 		$header = array();
@@ -213,10 +213,10 @@ class Linkhub
 		$header[] = 'Connection: close';
 
 		$uri = '/'.$ServiceID.'/PartnerPoint';
-		
+
 		$response = $this->executeCURL(Linkhub::ServiceURL . $uri,$header);
 		return $response->remainPoint;
-		
+
 	}
 }
 
