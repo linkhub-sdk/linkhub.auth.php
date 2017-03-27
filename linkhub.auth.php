@@ -10,7 +10,8 @@
 *
 * http://www.linkhub.co.kr
 * Author : Kim Seongjun (pallet027@gmail.com)
-* Written : 2014-04-15
+* Contributor : Jeong Yohan (code@linkhub.co.kr)
+* Written : 2017-03-27
 *
 * Thanks for your interest.
 * We welcome any suggestions, feedbacks, blames or anythings.
@@ -55,6 +56,10 @@ class Linkhub
 			$responseJson = curl_exec($http);
 
 			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
+
+      if ($responseJson != true){
+        throw new LinkhubException(curl_error($http));
+      }
 
 			curl_close($http);
 
@@ -115,10 +120,13 @@ class Linkhub
 
 			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
+      if ($response != true){
+        throw new LinkhubException(curl_error($http));
+      }
+
 			curl_close($http);
 
-
-			if($http_status != 200) {
+      if($http_status != 200) {
 				throw new LinkhubException($response);
 			}
 			return $response;
