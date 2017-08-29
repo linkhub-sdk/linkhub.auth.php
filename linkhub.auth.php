@@ -11,10 +11,13 @@
 * http://www.linkhub.co.kr
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Written : 2017-03-27
+* Written : 2017-08-29
 *
 * Thanks for your interest.
 * We welcome any suggestions, feedbacks, blames or anythings.
+*
+* Update Log
+* - 2017/08/29 GetPartnerURL API added
 * ======================================================================================
 */
 class Linkhub
@@ -224,7 +227,22 @@ class Linkhub
 
 		$response = $this->executeCURL(Linkhub::ServiceURL . $uri,$header);
 		return $response->remainPoint;
+	}
 
+  /*
+  * 파트너 포인트 충전 팝업 URL 추가 (2017/08/29)
+  */
+  public function getPartnerURL($bearerToken, $ServiceID, $TOGO)
+	{
+		$header = array();
+		$header[] = 'Authorization: Bearer '.$bearerToken;
+		$header[] = 'Accept-Encoding: gzip,deflate';
+		$header[] = 'Connection: close';
+
+		$uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
+
+		$response = $this->executeCURL(Linkhub::ServiceURL . $uri, $header);
+		return $response->url;
 	}
 }
 
