@@ -12,6 +12,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
 * Written : 2017-08-29
+* Updated : 2019-10-24
 *
 * Thanks for your interest.
 * We welcome any suggestions, feedbacks, blames or anythings.
@@ -65,6 +66,14 @@ class Linkhub
       }
 
 			curl_close($http);
+
+
+      $is_gzip = 0 === mb_strpos($responseJson, "\x1f" . "\x8b" . "\x08");
+
+
+      if ($is_gzip) {
+          $responseJson = $this->gzdecode($responseJson);
+      }
 
 			if($http_status != 200) {
 				throw new LinkhubException($responseJson);
