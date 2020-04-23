@@ -12,7 +12,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
 * Written : 2017-08-29
-* Updated : 2019-10-24
+* Updated : 2020-04-23
 *
 * Thanks for your interest.
 * We welcome any suggestions, feedbacks, blames or anythings.
@@ -24,11 +24,17 @@
 class Linkhub
 {
 	const VERSION = '1.0';
-	const ServiceURL = 'https://auth.linkhub.co.kr';
+	const ServiceURL = 'https://dev-auth.linkhub.kr';
 	private $__LinkID;
 	private $__SecretKey;
 	private $__requestMode = LINKHUB_COMM_MODE;
 
+  public function getSecretKey(){
+    return $this->__SecretKey;
+  }
+  public function getLinkID(){
+    return $this->__LinkID;
+  }
 	private static $singleton = null;
 	public static function getInstance($LinkID,$secretKey)
 	{
