@@ -24,7 +24,7 @@
 class Linkhub
 {
 	const VERSION = '1.0';
-	const ServiceURL = 'https://dev-auth.linkhub.kr';
+	const ServiceURL = 'https://auth.linkhub.co.kr';
 	private $__LinkID;
 	private $__SecretKey;
 	private $__requestMode = LINKHUB_COMM_MODE;
