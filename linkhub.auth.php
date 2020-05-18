@@ -59,11 +59,12 @@ class Linkhub
 
 			$responseJson = curl_exec($http);
 
-			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
-
-      if ($responseJson != true){
-        throw new LinkhubException(curl_error($http));
+      // curl Error 추가
+      if ($responseJson == false) {
+          throw new LinkhubException(curl_error($http));
       }
+
+			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
 			curl_close($http);
 
@@ -130,11 +131,13 @@ class Linkhub
 
 			$response = curl_exec($http);
 
+      // curl Error 추가
+      if ($response == false) {
+          throw new LinkhubException(curl_error($http));
+      }
+
 			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
-      if ($response != true){
-        throw new LinkhubException(curl_error($http));
-      }
 
 			curl_close($http);
 
