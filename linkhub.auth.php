@@ -25,6 +25,7 @@ class Linkhub
 {
 	const VERSION = '1.0';
 	const ServiceURL = 'https://auth.linkhub.co.kr';
+  const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
 	private $__LinkID;
 	private $__SecretKey;
 	private $__requestMode = LINKHUB_COMM_MODE;
@@ -128,10 +129,10 @@ class Linkhub
 		}
 	}
 
-	public function getTime()
+	public function getTime($useStaticIP = false)
 	{
 		if($this->__requestMode != "STREAM") {
-			$http = curl_init(Linkhub::ServiceURL.'/Time');
+			$http = curl_init( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL ) .'/Time');
 
 			curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
 
@@ -171,7 +172,7 @@ class Linkhub
 
 	  		$ctx = stream_context_create($params);
 
-	  		$response = (file_get_contents(LInkhub::ServiceURL.'/Time', false, $ctx));
+	  		$response = (file_get_contents( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .'/Time', false, $ctx));
 
 			if ($http_response_header[0] != "HTTP/1.1 200 OK") {
 	    		throw new LinkhubException($response);
@@ -180,7 +181,7 @@ class Linkhub
 		}
 	}
 
-	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null)
+	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false)
 	{
 		$xDate = $this->getTime();
 
@@ -215,12 +216,12 @@ class Linkhub
 		$header[] = 'Content-Type: Application/json';
 		$header[] = 'Connection: close';
 
-		return $this->executeCURL(Linkhub::ServiceURL.$uri , $header,true,$postdata);
+		return $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .$uri , $header,true,$postdata);
 
 	}
 
 
-	public function getBalance($bearerToken, $ServiceID)
+	public function getBalance($bearerToken, $ServiceID, $useStaticIP = false)
 	{
 		$header = array();
 		$header[] = 'Authorization: Bearer '.$bearerToken;
@@ -229,12 +230,12 @@ class Linkhub
 
 		$uri = '/'.$ServiceID.'/Point';
 
-		$response = $this->executeCURL(Linkhub::ServiceURL . $uri,$header);
+		$response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri,$header);
 		return $response->remainPoint;
 
 	}
 
-	public function getPartnerBalance($bearerToken, $ServiceID)
+	public function getPartnerBalance($bearerToken, $ServiceID, $useStaticIP = false)
 	{
 		$header = array();
 		$header[] = 'Authorization: Bearer '.$bearerToken;
@@ -243,14 +244,14 @@ class Linkhub
 
 		$uri = '/'.$ServiceID.'/PartnerPoint';
 
-		$response = $this->executeCURL(Linkhub::ServiceURL . $uri,$header);
+		$response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri,$header);
 		return $response->remainPoint;
 	}
 
   /*
   * 파트너 포인트 충전 팝업 URL 추가 (2017/08/29)
   */
-  public function getPartnerURL($bearerToken, $ServiceID, $TOGO)
+  public function getPartnerURL($bearerToken, $ServiceID, $TOGO, $useStaticIP = false)
 	{
 		$header = array();
 		$header[] = 'Authorization: Bearer '.$bearerToken;
@@ -259,7 +260,7 @@ class Linkhub
 
 		$uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
 
-		$response = $this->executeCURL(Linkhub::ServiceURL . $uri, $header);
+		$response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri, $header);
 		return $response->url;
 	}
 }
