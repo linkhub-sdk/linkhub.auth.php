@@ -132,6 +132,7 @@ class Linkhub
 	public function getTime($useStaticIP = false)
 	{
 		if($this->__requestMode != "STREAM") {
+
 			$http = curl_init( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL ) .'/Time');
 
 			curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
@@ -183,7 +184,7 @@ class Linkhub
 
 	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false)
 	{
-		$xDate = $this->getTime();
+		$xDate = $this->getTime($useStaticIP);
 
 		$uri = '/' . $ServiceID . '/Token';
 		$header = array();
@@ -215,6 +216,7 @@ class Linkhub
 		$header[] = 'Accept-Encoding: gzip,deflate';
 		$header[] = 'Content-Type: Application/json';
 		$header[] = 'Connection: close';
+
 
 		return $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .$uri , $header,true,$postdata);
 
