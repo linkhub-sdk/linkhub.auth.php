@@ -105,34 +105,38 @@ class Linkhub
 					 'protocol_version' => '1.0',
         		    ));
 	        }
-  			if ($header !== null) {
-		  		$head = "";
-		  		foreach($header as $h) {
-	  				$head = $head . $h . "\r\n";
-	    		}
-	    		$params['http']['header'] = substr($head,0,-2);
-	  		}
-	  		$ctx = stream_context_create($params);
-	  		$response = file_get_contents($url, false, $ctx);
+  		if ($header !== null) {
+		  	$head = "";
+		  	foreach($header as $h) {
+	  			$head = $head . $h . "\r\n";
+	   		}
+	   		$params['http']['header'] = substr($head,0,-2);
+	  	}
+	  	$ctx = stream_context_create($params);
+	 		$response = file_get_contents($url, false, $ctx);
 
 			$is_gzip = 0 === mb_strpos($response , "\x1f" . "\x8b" . "\x08");
-
 			if($is_gzip){
 				$response = $this->gzdecode($response);
 			}
 
-	  		if ($http_response_header[0] != "HTTP/1.1 200 OK") {
-	    		throw new LinkhubException($response);
-	  		}
+	  	if ($http_response_header[0] != "HTTP/1.1 200 OK") {
+	   		throw new LinkhubException($response);
+	 		}
 
 			return json_decode($response);
 		}
 	}
 
-	public function getTime($useStaticIP = false)
-	{
-		if($this->__requestMode != "STREAM") {
+	public function getTime($useStaticIP = false, $useLocalTimeYN = true) {
+		if($useLocalTimeYN) {
+			date_default_timezone_set("UTC");
 
+			$replace_search = array("@","#");
+			$replace_target = array("T","Z");
+			return str_replace($replace_search, $replace_target, date('Y-m-d@H:i:s#'));
+		}
+		if($this->__requestMode != "STREAM") {
 			$http = curl_init( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL ) .'/Time');
 
 			curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
@@ -182,9 +186,9 @@ class Linkhub
 		}
 	}
 
-	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false)
+	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false, $useLocalTimeYN = true)
 	{
-		$xDate = $this->getTime($useStaticIP);
+		$xDate = $this->getTime($useStaticIP, $useLocalTimeYN);
 
 		$uri = '/' . $ServiceID . '/Token';
 		$header = array();
@@ -292,3 +296,4 @@ class LinkhubException extends Exception
 }
 
 ?>
+<?php
