@@ -296,4 +296,3 @@ class LinkhubException extends Exception
 }
 
 ?>
-<?php
