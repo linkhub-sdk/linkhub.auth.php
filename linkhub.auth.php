@@ -25,7 +25,7 @@ class Linkhub
 {
 	const VERSION = '1.0';
 	const ServiceURL = 'https://auth.linkhub.co.kr';
-    const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
+	const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
 	private $__LinkID;
 	private $__SecretKey;
 	private $__requestMode = LINKHUB_COMM_MODE;
@@ -75,11 +75,11 @@ class Linkhub
 
 			curl_close($http);
 
-	        $is_gzip = 0 === mb_strpos($responseJson, "\x1f" . "\x8b" . "\x08");
+			$is_gzip = 0 === mb_strpos($responseJson, "\x1f" . "\x8b" . "\x08");
 
-	        if ($is_gzip) {
-	            $responseJson = $this->gzdecode($responseJson);
-	        }
+			if ($is_gzip) {
+				$responseJson = $this->gzdecode($responseJson);
+			}
 
 			if($http_status != 200) {
 				throw new LinkhubException($responseJson);
@@ -96,13 +96,13 @@ class Linkhub
 					 'protocol_version' => '1.0',
 					 'content' => $postdata
 					));
-	        } else {
-	        	$params = array('http' => array(
+			} else {
+				$params = array('http' => array(
 					 'ignore_errors' => TRUE,
 					 'method' => 'GET',
 					 'protocol_version' => '1.0',
 					));
-	        }
+			}
 			if ($header !== null) {
 				$head = "";
 				foreach($header as $h) {
@@ -276,18 +276,18 @@ class TokenRequest
 class LinkhubException extends Exception
 {
 	public function __construct($response, Exception $previous = null) {
-       $Err = json_decode($response);
-       if(is_null($Err)) {
-       		parent::__construct($response, -99999999);
-       }
-       else {
-       		parent::__construct($Err->message, $Err->code);
-       }
-    }
+		$Err = json_decode($response);
+		if(is_null($Err)) {
+			parent::__construct($response, -99999999);
+		}
+		else {
+			parent::__construct($Err->message, $Err->code);
+		}
+	}
 
-    public function __toString() {
-        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
-    }
+	public function __toString() {
+		return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+	}
 
 }
 
