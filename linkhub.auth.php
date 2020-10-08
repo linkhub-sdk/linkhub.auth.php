@@ -25,17 +25,17 @@ class Linkhub
 {
 	const VERSION = '1.0';
 	const ServiceURL = 'https://auth.linkhub.co.kr';
-  const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
+    const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
 	private $__LinkID;
 	private $__SecretKey;
 	private $__requestMode = LINKHUB_COMM_MODE;
 
-  public function getSecretKey(){
-    return $this->__SecretKey;
-  }
-  public function getLinkID(){
-    return $this->__LinkID;
-  }
+	public function getSecretKey(){
+		return $this->__SecretKey;
+	}
+	public function getLinkID(){
+		return $this->__LinkID;
+	}
 	private static $singleton = null;
 	public static function getInstance($LinkID,$secretKey)
 	{
@@ -66,22 +66,20 @@ class Linkhub
 
 			$responseJson = curl_exec($http);
 
-      // curl Error 추가
-      if ($responseJson == false) {
-          throw new LinkhubException(curl_error($http));
-      }
+			// curl Error 추가
+			if ($responseJson == false) {
+				throw new LinkhubException(curl_error($http));
+			}
 
 			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
 			curl_close($http);
 
+	        $is_gzip = 0 === mb_strpos($responseJson, "\x1f" . "\x8b" . "\x08");
 
-      $is_gzip = 0 === mb_strpos($responseJson, "\x1f" . "\x8b" . "\x08");
-
-
-      if ($is_gzip) {
-          $responseJson = $this->gzdecode($responseJson);
-      }
+	        if ($is_gzip) {
+	            $responseJson = $this->gzdecode($responseJson);
+	        }
 
 			if($http_status != 200) {
 				throw new LinkhubException($responseJson);
@@ -93,36 +91,36 @@ class Linkhub
 		else {
 			if($isPost) {
 				$params = array('http' => array(
-					 'ignore_errors' => TRUE,
-	   	          	 'method' => 'POST',
+ 					 'ignore_errors' => TRUE,
+ 				 	 'method' => 'POST',
 					 'protocol_version' => '1.0',
-    	         	 'content' => $postdata
-        		    ));
+					 'content' => $postdata
+					));
 	        } else {
 	        	$params = array('http' => array(
- 	  	     		 'ignore_errors' => TRUE,
-    	         	 'method' => 'GET',
+					 'ignore_errors' => TRUE,
+					 'method' => 'GET',
 					 'protocol_version' => '1.0',
-        		    ));
+					));
 	        }
-  		if ($header !== null) {
-		  	$head = "";
-		  	foreach($header as $h) {
-	  			$head = $head . $h . "\r\n";
-	   		}
-	   		$params['http']['header'] = substr($head,0,-2);
-	  	}
-	  	$ctx = stream_context_create($params);
-	 		$response = file_get_contents($url, false, $ctx);
+			if ($header !== null) {
+				$head = "";
+				foreach($header as $h) {
+					$head = $head . $h . "\r\n";
+				}
+				$params['http']['header'] = substr($head,0,-2);
+			}
+			$ctx = stream_context_create($params);
+			$response = file_get_contents($url, false, $ctx);
 
 			$is_gzip = 0 === mb_strpos($response , "\x1f" . "\x8b" . "\x08");
 			if($is_gzip){
 				$response = $this->gzdecode($response);
 			}
 
-	  	if ($http_response_header[0] != "HTTP/1.1 200 OK") {
-	   		throw new LinkhubException($response);
-	 		}
+			if ($http_response_header[0] != "HTTP/1.1 200 OK") {
+				throw new LinkhubException($response);
+			}
 
 			return json_decode($response);
 		}
@@ -143,17 +141,16 @@ class Linkhub
 
 			$response = curl_exec($http);
 
-      // curl Error 추가
-      if ($response == false) {
-          throw new LinkhubException(curl_error($http));
-      }
+			// curl Error 추가
+			if ($response == false) {
+				throw new LinkhubException(curl_error($http));
+			}
 
 			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
-
 			curl_close($http);
 
-      if($http_status != 200) {
+			if($http_status != 200) {
 				throw new LinkhubException($response);
 			}
 			return $response;
@@ -163,28 +160,27 @@ class Linkhub
 			$header[] = 'Connection: close';
 			$params = array('http' => array(
 				 'ignore_errors' => TRUE,
-				'protocol_version' => '1.0',
+				 'protocol_version' => '1.0',
 				 'method' => 'GET'
-   		    ));
-			if ($header !== null) {
-		  		$head = "";
-		  		foreach($header as $h) {
-	  				$head = $head . $h . "\r\n";
-	    		}
-	    		$params['http']['header'] = substr($head,0,-2);
-	  		}
+			 ));
+			 if ($header !== null) {
+				 $head = "";
+				 foreach($header as $h) {
+					 $head = $head . $h . "\r\n";
+				 }
+				 $params['http']['header'] = substr($head,0,-2);
+			 }
 
+			 $ctx = stream_context_create($params);
 
-	  		$ctx = stream_context_create($params);
+			 $response = (file_get_contents( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .'/Time', false, $ctx));
 
-	  		$response = (file_get_contents( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .'/Time', false, $ctx));
-
-			if ($http_response_header[0] != "HTTP/1.1 200 OK") {
-	    		throw new LinkhubException($response);
-	  		}
-			return $response;
-		}
-	}
+			 if ($http_response_header[0] != "HTTP/1.1 200 OK") {
+				 throw new LinkhubException($response);
+			 }
+			 return $response;
+		 }
+	 }
 
 	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false, $useLocalTimeYN = true)
 	{
