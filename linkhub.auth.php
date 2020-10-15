@@ -23,272 +23,270 @@
 */
 class Linkhub
 {
-	const VERSION = '1.0';
-	const ServiceURL = 'https://auth.linkhub.co.kr';
-	const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
-	private $__LinkID;
-	private $__SecretKey;
-	private $__requestMode = LINKHUB_COMM_MODE;
+    const VERSION = '1.0';
+    const ServiceURL = 'https://auth.linkhub.co.kr';
+    const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
+    private $__LinkID;
+    private $__SecretKey;
+    private $__requestMode = LINKHUB_COMM_MODE;
 
-	public function getSecretKey(){
-		return $this->__SecretKey;
-	}
-	public function getLinkID(){
-		return $this->__LinkID;
-	}
-	private static $singleton = null;
-	public static function getInstance($LinkID,$secretKey)
-	{
-		if(is_null(Linkhub::$singleton)) {
-			Linkhub::$singleton = new Linkhub();
-		}
-		Linkhub::$singleton->__LinkID = $LinkID;
-		Linkhub::$singleton->__SecretKey = $secretKey;
+    public function getSecretKey(){
+        return $this->__SecretKey;
+    }
+    public function getLinkID(){
+        return $this->__LinkID;
+    }
+    private static $singleton = null;
+    public static function getInstance($LinkID,$secretKey)
+    {
+        if(is_null(Linkhub::$singleton)) {
+            Linkhub::$singleton = new Linkhub();
+        }
+        Linkhub::$singleton->__LinkID = $LinkID;
+        Linkhub::$singleton->__SecretKey = $secretKey;
 
-		return Linkhub::$singleton;
-	}
-	public function gzdecode($data){
-	    return gzinflate(substr($data, 10, -8));
-	}
+        return Linkhub::$singleton;
+    }
+    public function gzdecode($data){
+        return gzinflate(substr($data, 10, -8));
+    }
 
-	private function executeCURL($url,$header = array(),$isPost = false, $postdata = null) {
+    private function executeCURL($url,$header = array(),$isPost = false, $postdata = null) {
 
-		if($this->__requestMode != "STREAM") {
-			$http = curl_init($url);
+        if($this->__requestMode != "STREAM") {
+            $http = curl_init($url);
 
-			if($isPost) {
-				curl_setopt($http, CURLOPT_POST,1);
-				curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);
-			}
-			curl_setopt($http, CURLOPT_HTTPHEADER,$header);
-			curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
-			curl_setopt($http, CURLOPT_ENCODING, 'gzip,deflate');
+            if($isPost) {
+                curl_setopt($http, CURLOPT_POST,1);
+                curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);
+            }
+            curl_setopt($http, CURLOPT_HTTPHEADER,$header);
+            curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($http, CURLOPT_ENCODING, 'gzip,deflate');
 
-			$responseJson = curl_exec($http);
+            $responseJson = curl_exec($http);
 
-			// curl Error 추가
-			if ($responseJson == false) {
-				throw new LinkhubException(curl_error($http));
-			}
+            // curl Error 추가
+            if ($responseJson == false) {
+                throw new LinkhubException(curl_error($http));
+            }
 
-			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
+            $http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
-			curl_close($http);
+            curl_close($http);
 
-			$is_gzip = 0 === mb_strpos($responseJson, "\x1f" . "\x8b" . "\x08");
+            $is_gzip = 0 === mb_strpos($responseJson, "\x1f" . "\x8b" . "\x08");
 
-			if ($is_gzip) {
-				$responseJson = $this->gzdecode($responseJson);
-			}
+            if ($is_gzip) {
+                $responseJson = $this->gzdecode($responseJson);
+            }
 
-			if($http_status != 200) {
-				throw new LinkhubException($responseJson);
-			}
+            if($http_status != 200) {
+                throw new LinkhubException($responseJson);
+            }
 
-			return json_decode($responseJson);
+            return json_decode($responseJson);
 
-		}
-		else {
-			if($isPost) {
-				$params = array('http' => array(
- 					 'ignore_errors' => TRUE,
- 				 	 'method' => 'POST',
-					 'protocol_version' => '1.0',
-					 'content' => $postdata
-					));
-			} else {
-				$params = array('http' => array(
-					 'ignore_errors' => TRUE,
-					 'method' => 'GET',
-					 'protocol_version' => '1.0',
-					));
-			}
-			if ($header !== null) {
-				$head = "";
-				foreach($header as $h) {
-					$head = $head . $h . "\r\n";
-				}
-				$params['http']['header'] = substr($head,0,-2);
-			}
-			$ctx = stream_context_create($params);
-			$response = file_get_contents($url, false, $ctx);
+        }
+        else {
+            if($isPost) {
+                $params = array('http' => array(
+                     'ignore_errors' => TRUE,
+                     'method' => 'POST',
+                     'protocol_version' => '1.0',
+                     'content' => $postdata
+                    ));
+            } else {
+                $params = array('http' => array(
+                     'ignore_errors' => TRUE,
+                     'method' => 'GET',
+                     'protocol_version' => '1.0',
+                    ));
+            }
+            if ($header !== null) {
+                $head = "";
+                foreach($header as $h) {
+                    $head = $head . $h . "\r\n";
+                }
+                $params['http']['header'] = substr($head,0,-2);
+            }
+            $ctx = stream_context_create($params);
+            $response = file_get_contents($url, false, $ctx);
 
-			$is_gzip = 0 === mb_strpos($response , "\x1f" . "\x8b" . "\x08");
-			if($is_gzip){
-				$response = $this->gzdecode($response);
-			}
+            $is_gzip = 0 === mb_strpos($response , "\x1f" . "\x8b" . "\x08");
+            if($is_gzip){
+                $response = $this->gzdecode($response);
+            }
 
-			if ($http_response_header[0] != "HTTP/1.1 200 OK") {
-				throw new LinkhubException($response);
-			}
+            if ($http_response_header[0] != "HTTP/1.1 200 OK") {
+                throw new LinkhubException($response);
+            }
 
-			return json_decode($response);
-		}
-	}
+            return json_decode($response);
+        }
+    }
 
-	public function getTime($useStaticIP = false, $useLocalTimeYN = true) {
-		if($useLocalTimeYN) {
-			date_default_timezone_set("UTC");
+    public function getTime($useStaticIP = false, $useLocalTimeYN = true) {
+        if($useLocalTimeYN) {
+            date_default_timezone_set("UTC");
 
-			$replace_search = array("@","#");
-			$replace_target = array("T","Z");
-			return str_replace($replace_search, $replace_target, date('Y-m-d@H:i:s#'));
-		}
-		if($this->__requestMode != "STREAM") {
-			$http = curl_init( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL ) .'/Time');
+            $replace_search = array("@","#");
+            $replace_target = array("T","Z");
+            return str_replace($replace_search, $replace_target, date('Y-m-d@H:i:s#'));
+        }
+        if($this->__requestMode != "STREAM") {
+            $http = curl_init( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL ) .'/Time');
 
-			curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
 
-			$response = curl_exec($http);
+            $response = curl_exec($http);
 
-			// curl Error 추가
-			if ($response == false) {
-				throw new LinkhubException(curl_error($http));
-			}
+            // curl Error 추가
+            if ($response == false) {
+                throw new LinkhubException(curl_error($http));
+            }
 
-			$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
+            $http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
 
-			curl_close($http);
+            curl_close($http);
 
-			if($http_status != 200) {
-				throw new LinkhubException($response);
-			}
-			return $response;
+            if($http_status != 200) {
+                throw new LinkhubException($response);
+            }
+            return $response;
 
-		} else {
-			$header = array();
-			$header[] = 'Connection: close';
-			$params = array('http' => array(
-				 'ignore_errors' => TRUE,
-				 'protocol_version' => '1.0',
-				 'method' => 'GET'
-			 ));
-			 if ($header !== null) {
-				 $head = "";
-				 foreach($header as $h) {
-					 $head = $head . $h . "\r\n";
-				 }
-				 $params['http']['header'] = substr($head,0,-2);
-			 }
+        } else {
+            $header = array();
+            $header[] = 'Connection: close';
+            $params = array('http' => array(
+                 'ignore_errors' => TRUE,
+                 'protocol_version' => '1.0',
+                 'method' => 'GET'
+            ));
+            if ($header !== null) {
+                $head = "";
+                foreach($header as $h) {
+                    $head = $head . $h . "\r\n";
+                }
+                $params['http']['header'] = substr($head,0,-2);
+            }
 
-			 $ctx = stream_context_create($params);
+            $ctx = stream_context_create($params);
 
-			 $response = (file_get_contents( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .'/Time', false, $ctx));
+            $response = (file_get_contents( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .'/Time', false, $ctx));
 
-			 if ($http_response_header[0] != "HTTP/1.1 200 OK") {
-				 throw new LinkhubException($response);
-			 }
-			 return $response;
-		 }
-	 }
+            if ($http_response_header[0] != "HTTP/1.1 200 OK") {
+                throw new LinkhubException($response);
+            }
+            return $response;
+        }
+    }
 
-	public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false, $useLocalTimeYN = true)
-	{
-		$xDate = $this->getTime($useStaticIP, $useLocalTimeYN);
+    public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false, $useLocalTimeYN = true)
+    {
+        $xDate = $this->getTime($useStaticIP, $useLocalTimeYN);
 
-		$uri = '/' . $ServiceID . '/Token';
-		$header = array();
+        $uri = '/' . $ServiceID . '/Token';
+        $header = array();
 
-		$TokenRequest = new TokenRequest();
-		$TokenRequest->access_id = $access_id;
-		$TokenRequest->scope = $scope;
+            $TokenRequest = new TokenRequest();
+        $TokenRequest->access_id = $access_id;
+        $TokenRequest->scope = $scope;
 
-		$postdata = json_encode($TokenRequest);
+        $postdata = json_encode($TokenRequest);
 
-		$digestTarget = 'POST'.chr(10);
-		$digestTarget = $digestTarget.base64_encode(md5($postdata,true)).chr(10);
-		$digestTarget = $digestTarget.$xDate.chr(10);
-		if(!(is_null($forwardIP) || $forwardIP == '')) {
-			$digestTarget = $digestTarget.$forwardIP.chr(10);
-		}
-		$digestTarget = $digestTarget.Linkhub::VERSION.chr(10);
-		$digestTarget = $digestTarget.$uri;
+        $digestTarget = 'POST'.chr(10);
+        $digestTarget = $digestTarget.base64_encode(md5($postdata,true)).chr(10);
+        $digestTarget = $digestTarget.$xDate.chr(10);
+        if(!(is_null($forwardIP) || $forwardIP == '')) {
+            $digestTarget = $digestTarget.$forwardIP.chr(10);
+        }
+        $digestTarget = $digestTarget.Linkhub::VERSION.chr(10);
+        $digestTarget = $digestTarget.$uri;
 
-		$digest = base64_encode(hash_hmac('sha1',$digestTarget,base64_decode(strtr($this->__SecretKey, '-_', '+/')),true));
+        $digest = base64_encode(hash_hmac('sha1',$digestTarget,base64_decode(strtr($this->__SecretKey, '-_', '+/')),true));
 
-		$header[] = 'x-lh-date: '.$xDate;
-		$header[] = 'x-lh-version: '.Linkhub::VERSION;
-		if(!(is_null($forwardIP) || $forwardIP == '')) {
-			$header[] = 'x-lh-forwarded: '.$forwardIP;
-		}
+        $header[] = 'x-lh-date: '.$xDate;
+        $header[] = 'x-lh-version: '.Linkhub::VERSION;
+        if(!(is_null($forwardIP) || $forwardIP == '')) {
+            $header[] = 'x-lh-forwarded: '.$forwardIP;
+        }
 
-		$header[] = 'Authorization: LINKHUB '.$this->__LinkID.' '.$digest;
-		$header[] = 'Accept-Encoding: gzip,deflate';
-		$header[] = 'Content-Type: Application/json';
-		$header[] = 'Connection: close';
+        $header[] = 'Authorization: LINKHUB '.$this->__LinkID.' '.$digest;
+        $header[] = 'Accept-Encoding: gzip,deflate';
+        $header[] = 'Content-Type: Application/json';
+        $header[] = 'Connection: close';
 
-
-		return $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .$uri , $header,true,$postdata);
-
-	}
-
-
-	public function getBalance($bearerToken, $ServiceID, $useStaticIP = false)
-	{
-		$header = array();
-		$header[] = 'Authorization: Bearer '.$bearerToken;
-		$header[] = 'Accept-Encoding: gzip,deflate';
-		$header[] = 'Connection: close';
-
-		$uri = '/'.$ServiceID.'/Point';
-
-		$response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri,$header);
-		return $response->remainPoint;
+        return $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .$uri , $header,true,$postdata);
 
 	}
 
-	public function getPartnerBalance($bearerToken, $ServiceID, $useStaticIP = false)
-	{
-		$header = array();
-		$header[] = 'Authorization: Bearer '.$bearerToken;
-		$header[] = 'Accept-Encoding: gzip,deflate';
-		$header[] = 'Connection: close';
 
-		$uri = '/'.$ServiceID.'/PartnerPoint';
+    public function getBalance($bearerToken, $ServiceID, $useStaticIP = false)
+    {
+        $header = array();
+        $header[] = 'Authorization: Bearer '.$bearerToken;
+        $header[] = 'Accept-Encoding: gzip,deflate';
+        $header[] = 'Connection: close';
 
-		$response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri,$header);
-		return $response->remainPoint;
-	}
+        $uri = '/'.$ServiceID.'/Point';
 
-  /*
-  * 파트너 포인트 충전 팝업 URL 추가 (2017/08/29)
-  */
-  public function getPartnerURL($bearerToken, $ServiceID, $TOGO, $useStaticIP = false)
-	{
-		$header = array();
-		$header[] = 'Authorization: Bearer '.$bearerToken;
-		$header[] = 'Accept-Encoding: gzip,deflate';
-		$header[] = 'Connection: close';
+        $response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri,$header);
+        return $response->remainPoint;
 
-		$uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
+    }
 
-		$response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri, $header);
-		return $response->url;
-	}
+    public function getPartnerBalance($bearerToken, $ServiceID, $useStaticIP = false)
+    {
+        $header = array();
+        $header[] = 'Authorization: Bearer '.$bearerToken;
+        $header[] = 'Accept-Encoding: gzip,deflate';
+        $header[] = 'Connection: close';
+
+        $uri = '/'.$ServiceID.'/PartnerPoint';
+
+        $response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri,$header);
+        return $response->remainPoint;
+        }
+
+    /*
+    * 파트너 포인트 충전 팝업 URL 추가 (2017/08/29)
+    */
+    public function getPartnerURL($bearerToken, $ServiceID, $TOGO, $useStaticIP = false)
+    {
+        $header = array();
+        $header[] = 'Authorization: Bearer '.$bearerToken;
+        $header[] = 'Accept-Encoding: gzip,deflate';
+        $header[] = 'Connection: close';
+
+        $uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
+
+        $response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri, $header);
+        return $response->url;
+    }
 }
 
 class TokenRequest
 {
-	public $access_id;
-	public $scope;
+    public $access_id;
+    public $scope;
 }
 
 class LinkhubException extends Exception
 {
-	public function __construct($response, Exception $previous = null) {
-		$Err = json_decode($response);
-		if(is_null($Err)) {
-			parent::__construct($response, -99999999);
-		}
-		else {
-			parent::__construct($Err->message, $Err->code);
-		}
-	}
+    public function __construct($response, Exception $previous = null) {
+        $Err = json_decode($response);
+        if(is_null($Err)) {
+            parent::__construct($response, -99999999);
+        }
+        else {
+            parent::__construct($Err->message, $Err->code);
+        }
+    }
 
-	public function __toString() {
-		return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
-	}
-
+    public function __toString() {
+        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+    }
 }
 
 ?>
