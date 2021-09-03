@@ -25,6 +25,7 @@ class Linkhub
 {
     const VERSION = '2.0';
     const ServiceURL = 'https://auth.linkhub.co.kr';
+    const ServiceURL_Static = 'https://static-auth.linkhub.co.kr';
     const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
     private $__LinkID;
     private $__SecretKey;
@@ -126,7 +127,7 @@ class Linkhub
         }
     }
 
-    public function getTime($useStaticIP = false, $useLocalTimeYN = true) {
+    public function getTime($useStaticIP = false, $useLocalTimeYN = true, $useGAIP = false) {
         if($useLocalTimeYN) {
             date_default_timezone_set("UTC");
 
@@ -135,7 +136,15 @@ class Linkhub
             return str_replace($replace_search, $replace_target, date('Y-m-d@H:i:s#'));
         }
         if($this->__requestMode != "STREAM") {
-            $http = curl_init( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL ) .'/Time');
+            if($useGAIP){
+                $targetURL = Linkhub::ServiceURL_GA;
+            } else if($useStaticIP){
+                $targetURL = Linkhub::ServiceURL_Static;
+            } else {
+                $targetURL = Linkhub::ServiceURL;
+            }
+
+            $http = curl_init($targetURL.'/Time');
 
             curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
 
@@ -173,7 +182,15 @@ class Linkhub
 
             $ctx = stream_context_create($params);
 
-            $response = (file_get_contents( ( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .'/Time', false, $ctx));
+            if($useGAIP){
+                $targetURL = Linkhub::ServiceURL_GA;
+            } else if($useStaticIP){
+                $targetURL = Linkhub::ServiceURL_Static;
+            } else {
+                $targetURL = Linkhub::ServiceURL;
+            }
+
+            $response = (file_get_contents( $targetURL.'/Time', false, $ctx));
 
             if ($http_response_header[0] != "HTTP/1.1 200 OK") {
                 throw new LinkhubException($response);
@@ -182,9 +199,9 @@ class Linkhub
         }
     }
 
-    public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false, $useLocalTimeYN = true)
+    public function getToken($ServiceID, $access_id, array $scope = array() , $forwardIP = null, $useStaticIP = false, $useLocalTimeYN = true, $useGAIP = false)
     {
-        $xDate = $this->getTime($useStaticIP, $useLocalTimeYN);
+        $xDate = $this->getTime($useStaticIP, $useLocalTimeYN, $useGAIP);
 
         $uri = '/' . $ServiceID . '/Token';
         $header = array();
@@ -217,7 +234,15 @@ class Linkhub
         $header[] = 'Content-Type: Application/json';
         $header[] = 'Connection: close';
 
-        return $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) .$uri , $header,true,$postdata);
+        if($useGAIP){
+            $targetURL = Linkhub::ServiceURL_GA;
+        } else if($useStaticIP){
+            $targetURL = Linkhub::ServiceURL_Static;
+        } else {
+            $targetURL = Linkhub::ServiceURL;
+        }
+
+        return $this->executeCURL($targetURL.$uri , $header,true,$postdata);
 
 	}
 
