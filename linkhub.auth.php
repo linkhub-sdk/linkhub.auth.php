@@ -247,7 +247,7 @@ class Linkhub
 	}
 
 
-    public function getBalance($bearerToken, $ServiceID, $useStaticIP = false)
+    public function getBalance($bearerToken, $ServiceID, $useStaticIP = false, $useGAIP = false)
     {
         $header = array();
         $header[] = 'Authorization: Bearer '.$bearerToken;
@@ -256,12 +256,19 @@ class Linkhub
 
         $uri = '/'.$ServiceID.'/Point';
 
-        $response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri,$header);
+        if($useGAIP){
+            $targetURL = Linkhub::ServiceURL_GA;
+        } else if($useStaticIP){
+            $targetURL = Linkhub::ServiceURL_Static;
+        } else {
+            $targetURL = Linkhub::ServiceURL;
+        }
+        $response = $this->executeCURL($targetURL.$uri,$header);
         return $response->remainPoint;
 
     }
 
-    public function getPartnerBalance($bearerToken, $ServiceID, $useStaticIP = false)
+    public function getPartnerBalance($bearerToken, $ServiceID, $useStaticIP = false, $useGAIP = false)
     {
         $header = array();
         $header[] = 'Authorization: Bearer '.$bearerToken;
@@ -270,14 +277,21 @@ class Linkhub
 
         $uri = '/'.$ServiceID.'/PartnerPoint';
 
-        $response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri,$header);
+        if($useGAIP){
+            $targetURL = Linkhub::ServiceURL_GA;
+        } else if($useStaticIP){
+            $targetURL = Linkhub::ServiceURL_Static;
+        } else {
+            $targetURL = Linkhub::ServiceURL;
+        }
+        $response = $this->executeCURL($targetURL.$uri,$header);
         return $response->remainPoint;
         }
 
     /*
     * 파트너 포인트 충전 팝업 URL 추가 (2017/08/29)
     */
-    public function getPartnerURL($bearerToken, $ServiceID, $TOGO, $useStaticIP = false)
+    public function getPartnerURL($bearerToken, $ServiceID, $TOGO, $useStaticIP = false, $useGAIP = false)
     {
         $header = array();
         $header[] = 'Authorization: Bearer '.$bearerToken;
@@ -285,8 +299,14 @@ class Linkhub
         $header[] = 'Connection: close';
 
         $uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
-
-        $response = $this->executeCURL(( $useStaticIP ?  Linkhub::ServiceURL_GA : Linkhub::ServiceURL) . $uri, $header);
+        if($useGAIP){
+            $targetURL = Linkhub::ServiceURL_GA;
+        } else if($useStaticIP){
+            $targetURL = Linkhub::ServiceURL_Static;
+        } else {
+            $targetURL = Linkhub::ServiceURL;
+        }
+        $response = $this->executeCURL($targetURL.$uri, $header);
         return $response->url;
     }
 }
