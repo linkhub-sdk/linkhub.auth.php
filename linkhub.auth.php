@@ -136,13 +136,7 @@ class Linkhub
             return str_replace($replace_search, $replace_target, date('Y-m-d@H:i:s#'));
         }
         if($this->__requestMode != "STREAM") {
-            if($useGAIP){
-                $targetURL = Linkhub::ServiceURL_GA;
-            } else if($useStaticIP){
-                $targetURL = Linkhub::ServiceURL_Static;
-            } else {
-                $targetURL = Linkhub::ServiceURL;
-            }
+            $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
 
             $http = curl_init($targetURL.'/Time');
 
@@ -182,13 +176,7 @@ class Linkhub
 
             $ctx = stream_context_create($params);
 
-            if($useGAIP){
-                $targetURL = Linkhub::ServiceURL_GA;
-            } else if($useStaticIP){
-                $targetURL = Linkhub::ServiceURL_Static;
-            } else {
-                $targetURL = Linkhub::ServiceURL;
-            }
+            $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
 
             $response = (file_get_contents( $targetURL.'/Time', false, $ctx));
 
@@ -234,16 +222,9 @@ class Linkhub
         $header[] = 'Content-Type: Application/json';
         $header[] = 'Connection: close';
 
-        if($useGAIP){
-            $targetURL = Linkhub::ServiceURL_GA;
-        } else if($useStaticIP){
-            $targetURL = Linkhub::ServiceURL_Static;
-        } else {
-            $targetURL = Linkhub::ServiceURL;
-        }
+        $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
 
         return $this->executeCURL($targetURL.$uri , $header,true,$postdata);
-
 	}
 
 
@@ -254,15 +235,9 @@ class Linkhub
         $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
 
+        $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/Point';
 
-        if($useGAIP){
-            $targetURL = Linkhub::ServiceURL_GA;
-        } else if($useStaticIP){
-            $targetURL = Linkhub::ServiceURL_Static;
-        } else {
-            $targetURL = Linkhub::ServiceURL;
-        }
         $response = $this->executeCURL($targetURL.$uri,$header);
         return $response->remainPoint;
 
@@ -275,15 +250,9 @@ class Linkhub
         $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
 
+        $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/PartnerPoint';
 
-        if($useGAIP){
-            $targetURL = Linkhub::ServiceURL_GA;
-        } else if($useStaticIP){
-            $targetURL = Linkhub::ServiceURL_Static;
-        } else {
-            $targetURL = Linkhub::ServiceURL;
-        }
         $response = $this->executeCURL($targetURL.$uri,$header);
         return $response->remainPoint;
         }
@@ -298,16 +267,21 @@ class Linkhub
         $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
 
+        $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
-        if($useGAIP){
-            $targetURL = Linkhub::ServiceURL_GA;
-        } else if($useStaticIP){
-            $targetURL = Linkhub::ServiceURL_Static;
-        } else {
-            $targetURL = Linkhub::ServiceURL;
-        }
+
         $response = $this->executeCURL($targetURL.$uri, $header);
         return $response->url;
+    }
+
+    private function getTargetURL($useStaticIP, $useGAIP){
+        if($useGAIP){
+            return Linkhub::ServiceURL_GA;
+        } else if($useStaticIP){
+            return Linkhub::ServiceURL_Static;
+        } else {
+            return Linkhub::ServiceURL;
+        }
     }
 }
 
