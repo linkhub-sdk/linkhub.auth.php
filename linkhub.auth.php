@@ -129,11 +129,12 @@ class Linkhub
 
     public function getTime($useStaticIP = false, $useLocalTimeYN = true, $useGAIP = false) {
         if($useLocalTimeYN) {
-            date_default_timezone_set("UTC");
-
             $replace_search = array("@","#");
             $replace_target = array("T","Z");
-            return str_replace($replace_search, $replace_target, date('Y-m-d@H:i:s#'));
+
+            $date = new DateTime('now', new DateTimeZone('UTC'));
+
+            return str_replace($replace_search, $replace_target, $date->format('Y-m-d@H:i:s#'));
         }
         if($this->__requestMode != "STREAM") {
             $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
