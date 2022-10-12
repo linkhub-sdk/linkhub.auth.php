@@ -162,6 +162,7 @@ class Linkhub
         } else {
             $header = array();
             $header[] = 'Connection: close';
+            $header[] = 'User-Agent: PHP5 LINKHUB SDK';
             $params = array('http' => array(
                  'ignore_errors' => TRUE,
                  'protocol_version' => '1.0',
@@ -222,6 +223,7 @@ class Linkhub
         $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Content-Type: Application/json';
         $header[] = 'Connection: close';
+        $header[] = 'User-Agent: PHP5 LINKHUB SDK';
 
         $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
 
@@ -235,6 +237,7 @@ class Linkhub
         $header[] = 'Authorization: Bearer '.$bearerToken;
         $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
+        $header[] = 'User-Agent: PHP5 LINKHUB SDK';
 
         $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/Point';
@@ -250,6 +253,7 @@ class Linkhub
         $header[] = 'Authorization: Bearer '.$bearerToken;
         $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
+        $header[] = 'User-Agent: PHP5 LINKHUB SDK';
 
         $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/PartnerPoint';
@@ -267,6 +271,7 @@ class Linkhub
         $header[] = 'Authorization: Bearer '.$bearerToken;
         $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
+        $header[] = 'User-Agent: PHP5 LINKHUB SDK';
 
         $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
