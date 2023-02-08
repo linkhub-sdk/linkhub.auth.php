@@ -53,6 +53,10 @@ class Linkhub
     }
 
     private function executeCURL($url,$header = array(),$isPost = false, $postdata = null) {
+        $base_header = array();
+        $base_header[] = 'Accept-Encoding: gzip,deflate';
+        $base_header[] = 'User-Agent: PHP5 LINKHUB SDK';
+        $arr_header = $header + $base_header;
 
         if($this->__requestMode != "STREAM") {
             $http = curl_init($url);
@@ -61,7 +65,7 @@ class Linkhub
                 curl_setopt($http, CURLOPT_POST,1);
                 curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);
             }
-            curl_setopt($http, CURLOPT_HTTPHEADER,$header);
+            curl_setopt($http, CURLOPT_HTTPHEADER,$arr_header);
             curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
             curl_setopt($http, CURLOPT_ENCODING, 'gzip,deflate');
 
@@ -104,9 +108,9 @@ class Linkhub
                      'protocol_version' => '1.0',
                     ));
             }
-            if ($header !== null) {
+            if ($arr_header !== null) {
                 $head = "";
-                foreach($header as $h) {
+                foreach($arr_header as $h) {
                     $head = $head . $h . "\r\n";
                 }
                 $params['http']['header'] = substr($head,0,-2);
@@ -162,7 +166,6 @@ class Linkhub
         } else {
             $header = array();
             $header[] = 'Connection: close';
-            $header[] = 'User-Agent: PHP5 LINKHUB SDK';
             $params = array('http' => array(
                  'ignore_errors' => TRUE,
                  'protocol_version' => '1.0',
@@ -220,10 +223,8 @@ class Linkhub
         }
 
         $header[] = 'Authorization: LINKHUB '.$this->__LinkID.' '.$digest;
-        $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Content-Type: Application/json';
         $header[] = 'Connection: close';
-        $header[] = 'User-Agent: PHP5 LINKHUB SDK';
 
         $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
 
@@ -235,9 +236,7 @@ class Linkhub
     {
         $header = array();
         $header[] = 'Authorization: Bearer '.$bearerToken;
-        $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
-        $header[] = 'User-Agent: PHP5 LINKHUB SDK';
 
         $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/Point';
@@ -251,9 +250,7 @@ class Linkhub
     {
         $header = array();
         $header[] = 'Authorization: Bearer '.$bearerToken;
-        $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
-        $header[] = 'User-Agent: PHP5 LINKHUB SDK';
 
         $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/PartnerPoint';
@@ -269,9 +266,7 @@ class Linkhub
     {
         $header = array();
         $header[] = 'Authorization: Bearer '.$bearerToken;
-        $header[] = 'Accept-Encoding: gzip,deflate';
         $header[] = 'Connection: close';
-        $header[] = 'User-Agent: PHP5 LINKHUB SDK';
 
         $targetURL = $this->getTargetURL($useStaticIP, $useGAIP);
         $uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
