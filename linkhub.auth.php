@@ -11,8 +11,9 @@
 * http://www.linkhub.co.kr
 * Author : Kim Seongjun
 * Contributor : Jeong Yohan (code@linkhubcorp.com)
+* Contributor : Jeong Wooseok (code@linkhubcorp.com)
 * Written : 2017-08-29
-* Updated : 2023-02-10
+* Updated : 2023-08-02
 *
 * Thanks for your interest.
 * We welcome any suggestions, feedbacks, blames or anythings.
@@ -20,6 +21,7 @@
 * Update Log
 * - 2017/08/29 GetPartnerURL API added
 * - 2023/02/10 Request Header User-Agent added
+* - 2023/08/02 AuthURL Setter added
 * ======================================================================================
 */
 class Linkhub
@@ -28,6 +30,7 @@ class Linkhub
     const ServiceURL = 'https://auth.linkhub.co.kr';
     const ServiceURL_Static = 'https://static-auth.linkhub.co.kr';
     const ServiceURL_GA = 'https://ga-auth.linkhub.co.kr';
+    private $ServiceURL;
     private $__LinkID;
     private $__SecretKey;
     private $__requestMode = LINKHUB_COMM_MODE;
@@ -37,6 +40,9 @@ class Linkhub
     }
     public function getLinkID(){
         return $this->__LinkID;
+    }
+    public function ServiceURL($V){
+        $this->ServiceURL = $V;
     }
     private static $singleton = null;
     public static function getInstance($LinkID,$secretKey)
@@ -277,6 +283,10 @@ class Linkhub
     }
 
     private function getTargetURL($useStaticIP, $useGAIP){
+        if(isset($this->ServiceURL)) {
+            return $this->ServiceURL;
+        }
+        
         if($useGAIP){
             return Linkhub::ServiceURL_GA;
         } else if($useStaticIP){
