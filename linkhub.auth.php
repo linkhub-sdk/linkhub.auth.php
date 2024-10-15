@@ -78,10 +78,10 @@ class Linkhub
             curl_setopt($http, CURLOPT_HTTPHEADER,$arr_header);
             curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
             curl_setopt($http, CURLOPT_ENCODING, 'gzip,deflate');
-            // Read timeout 설정 
-            curl_setopt($http, CURLOPT_TIMEOUT_MS, 180 * 1000);
             // Connection timeout 설정
             curl_setopt($http, CURLOPT_CONNECTTIMEOUT_MS, 10 * 1000);
+            // 통합 timeout 설정
+            curl_setopt($http, CURLOPT_TIMEOUT_MS, 180 * 1000);
 
             $responseJson = curl_exec($http);
 
@@ -114,14 +114,14 @@ class Linkhub
                      'method' => 'POST',
                      'protocol_version' => '1.0',
                      'content' => $postdata,
-                     'timeout' => 10
+                     'timeout' => 180
                     ));
             } else {
                 $params = array('http' => array(
                      'ignore_errors' => TRUE,
                      'method' => 'GET',
                      'protocol_version' => '1.0',
-                     'timeout' => 10
+                     'timeout' => 180
                     ));
             }
             if ($arr_header !== null) {
@@ -190,7 +190,7 @@ class Linkhub
                  'ignore_errors' => TRUE,
                  'protocol_version' => '1.0',
                  'method' => 'GET',
-                 'timeout' => 10
+                 'timeout' => 180
             ));
             if ($header !== null) {
                 $head = "";
