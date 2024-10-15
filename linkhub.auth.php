@@ -13,7 +13,7 @@
 * Contributor : Jeong Yohan (code@linkhubcorp.com)
 * Contributor : Jeong Wooseok (code@linkhubcorp.com)
 * Written : 2017-08-29
-* Updated : 2024-09-26
+* Updated : 2024-10-15
 *
 * Thanks for your interest.
 * We welcome any suggestions, feedbacks, blames or anythings.
